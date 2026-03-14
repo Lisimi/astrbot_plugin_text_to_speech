@@ -31,12 +31,6 @@ class VoiceGeneratorStar(Star):
         self.api_url = f"http://{host}:{port}/"
         windows_http_port = config.get("windows_http_port", 9800)
         self.windows_base_url = f"http://{host}:{windows_http_port}/"
-
-        self.vg = VoiceGenerator(api_url=self.api_url, windows_base_url=self.windows_base_url)
-        if not self.vg.tts.available:
-            return
-        if self.sovits_model and self.gpt_model:
-            self.vg.set_models(self.sovits_model, self.gpt_model)
         
 
     async def _generate_audio(self, text: str, save_dir: str) -> str:
@@ -50,14 +44,23 @@ class VoiceGeneratorStar(Star):
     @on_decorating_result()
     async def on_decorating_result(self, event: AstrMessageEvent):
         result = event.get_result()
+        
+        if not result or not result.chain:
+            return
         #logger.info(f"[VoiceGeneratorStar] event 可用属性: {dir(event)}")
+        #设置保存目录
         platform_id = event.session.platform_id
         session_id = event.get_session_id()
         save_dir = str(Path(__file__).parent / "outputVideo" / platform_id / session_id)
         logger.info(f"[VoiceGeneratorStar] 插件已加载，保存目录: {save_dir}")
 
-        if not result or not result.chain:
+        # 初始化语音生成器
+        vg = VoiceGenerator(api_url=self.api_url, windows_base_url=self.windows_base_url)
+        if not vg.tts.available:
             return
+        if self.sovits_model and self.gpt_model:
+            vg.set_models(self.sovits_model, self.gpt_model)
+
         full_text = " ".join([comp.text for comp in result.chain if isinstance(comp, Comp.Plain)]).strip()
         if len(full_text) < self.min_text_length or len(full_text) > self.max_text_length:
             return
