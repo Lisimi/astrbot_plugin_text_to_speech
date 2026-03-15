@@ -16,9 +16,9 @@
     "default": 80,
     "description": "生成语音的最大文本长度",
     "slider": {
-        "min": 50,
-        "max": 100,
-        "step": 1
+      "min": 50,
+      "max": 100,
+      "step": 1
     }
   },
   "min_text_length": {
@@ -26,11 +26,20 @@
     "default": 10,
     "description": "生成语音的最小文本长度",
     "slider": {
-        "min": 1,
-        "max": 49,
-        "step": 1
+      "min": 1,
+      "max": 49,
+      "step": 1
     }
-    
+  },
+  "clean_patterns": {
+    "type": "list",
+    "default": [
+      "\\(.*?\\)",
+      "\\[.*?\\]",
+      "\\<.*?\\>",
+      "\\*.*?\\*"
+    ],
+    "description": "需要过滤的正则表达式列表"
   },
   "sovits_model": {
     "type": "string",

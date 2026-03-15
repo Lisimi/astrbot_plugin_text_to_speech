@@ -8,7 +8,7 @@ from astrbot.core.star.register import register_on_decorating_result as on_decor
 from astrbot.core.star.register import register_command as command
 from data.plugins.astrbot_plugin_text_to_speech.voice_generator import VoiceGenerator
 
-
+import re
 
 @register(
     "voice-generator-plugin",
@@ -24,13 +24,29 @@ class VoiceGeneratorStar(Star):
         self.gpt_model = config.get("gpt_model", "GPT_weights_v3/Qingyi-e10.ckpt")
         self.max_text_length = config.get("max_text_length", 80)
         self.min_text_length = config.get("min_text_length", 10)
-        self.ref_audio = config.get("ref_audio", "http://192.168.0.203:9800/output/slicer_opt/Qingyi.wav_0001504320_0001702080.wav")
+        ref_audio = config.get("ref_audio", "output/slicer_opt/Qingyi.wav_0001504320_0001702080.wav")
         self.prompt_text = config.get("prompt_text", "嗯。如果不是因为店长深谙电影知识，我可能会错过这个细节也未可知。")
-        host = config.get("api_host", "localhost")
-        port = config.get("api_port", 8000)
+        host = config.get("api_host", "192.168.0.203")
+        port = config.get("api_port", 9872)
         self.api_url = f"http://{host}:{port}/"
         windows_http_port = config.get("windows_http_port", 9800)
         self.windows_base_url = f"http://{host}:{windows_http_port}/"
+        self.ref_audio = self.windows_base_url + ref_audio.replace("\\", "/")  # 确保路径格式正确
+        self.clean_patterns = config.get(
+            "clean_patterns", 
+            [r"\(.*?\)",   # 去掉圆括号内容
+            r"\[.*?\]",   # 去掉方括号内容
+            r"\<.*?\>",   # 去掉尖括号内容
+            r"\*.*?\*",   # 去掉星号内容
+        ])
+
+
+    def _clean_text(self, text: str) -> str:
+        for pattern in self.clean_patterns:
+            text = re.sub(pattern, "", text)
+        return text.strip()
+
+
         
 
     async def _generate_audio(self, text: str, save_dir: str) -> str:
@@ -61,7 +77,12 @@ class VoiceGeneratorStar(Star):
         if self.sovits_model and self.gpt_model:
             vg.set_models(self.sovits_model, self.gpt_model)
 
+        #获取文本内容并清理
         full_text = " ".join([comp.text for comp in result.chain if isinstance(comp, Comp.Plain)]).strip()
+        if not full_text:
+            return
+        full_text = self._clean_text(full_text)   # 清理文本
+        
         if len(full_text) < self.min_text_length or len(full_text) > self.max_text_length:
             return
         try:
@@ -82,7 +103,9 @@ class VoiceGeneratorStar(Star):
             yield event.plain_result("用法: voicegen-test <文本>")
             return
         try:
-            path = await self._generate_audio(text.strip())
+            save_dir = str(Path(__file__).parent / "outputVideo" / event.session.platform_id / event.get_session_id())
+            path = await self._generate_audio(clean_text, save_dir)
+
             yield event.chain_result([Comp.Record(file=path, url=path)])
         except Exception as e:
             yield event.plain_result(f"❌ {e}")

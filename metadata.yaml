@@ -1,6 +1,6 @@
 name: astrbot_plugin_text_to_speech # 插件唯一识别名，以 astrbot_plugin_ 前缀开头
 display_name: 将文本转换为语音的插件 # 用于展示的名字，可以是方便人类阅读的名字（需要版本 >= v4.5.0，低版本不会报错，请放心填写）
-desc: AstrBot 插件示例。 # 插件简短描述
+desc: 一个能够调用部署在不同服务器上语音生成服务的文本转换为语音的插件。 # 插件简短描述
 version: v0.0.1 # 插件版本号。格式：v1.1.1 或者 v1.1
 author: Lisimi # 作者
 repo: https://github.com/Lisimi/astrbot_plugin_text_to_speech # 插件的仓库地址
