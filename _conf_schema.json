@@ -1,15 +1,8 @@
 {
-  "api_host": {
+  "base_url": {
     "type": "string",
-    "default": "192.168.0.203",
-    "description": "GenieTTS 服务运行的 IP 地址"
-  },
-  "api_port": {
-    "type": "int",
-    "default": 9872,
-    "minimum": 1,
-    "maximum": 65535,
-    "description": "GenieTTS 服务端口"
+    "default": "http://192.168.0.105:9880",
+    "description": "SoVITS API 服务地址"
   },
   "max_text_length": {
     "type": "int",
@@ -53,19 +46,12 @@
   },
   "ref_audio": {
     "type": "string",
-    "default": "http://192.168.0.203:9800/output/slicer_opt/Qingyi.wav_0001504320_0001702080.wav",
-    "description": "参考音频 URL"
+    "default": "ref_audio/Qingyi.wav_0001504320_0001702080.wav",
+    "description": "参考音频路径（本地路径）"
   },
   "prompt_text": {
     "type": "string",
     "default": "嗯。如果不是因为店长深谙电影知识，我可能会错过这个细节也未可知。",
     "description": "参考音频对应的文本"
-  },
-  "windows_http_port": {
-    "type": "int",
-    "default": 9800,
-    "minimum": 1,
-    "maximum": 65535,
-    "description": "Windows HTTP 服务端口"
   }
 }
