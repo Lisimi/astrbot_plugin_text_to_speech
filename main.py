@@ -33,7 +33,7 @@ class VoiceGeneratorStar(Star):
         self.gpt_model = config.get("gpt_model", "GPT_weights/qingyi-e15.ckpt")
         self.max_text_length = config.get("max_text_length", 80)
         self.min_text_length = config.get("min_text_length", 10)
-        self.ref_audio = config.get("ref_audio", "ref_audio/Qingyi.wav_0001504320_0001702080.wav")
+        self.ref_audio = config.get("ref_audio", "Ref_audio/Qingyi.wav_0001504320_0001702080.wav")
         self.prompt_text = config.get("prompt_text", "嗯。如果不是因为店长深谙电影知识，我可能会错过这个细节也未可知。")
         self.base_url = config.get("base_url", "http://192.168.0.105:9880")
         

@@ -36,17 +36,17 @@
   },
   "sovits_model": {
     "type": "string",
-    "default": "SoVITS_weights_v3/Qingyi_e2_s46_l32.pth",
+    "default": "SoVITS_weights/qingyi_e8_s104.pth",
     "description": "SoVITS 模型路径"
   },
   "gpt_model": {
     "type": "string",
-    "default": "GPT_weights_v3/Qingyi-e10.ckpt",
+    "default": "GPT_weights/qingyi-e15.ckpt",
     "description": "GPT 模型路径"
   },
   "ref_audio": {
     "type": "string",
-    "default": "ref_audio/Qingyi.wav_0001504320_0001702080.wav",
+    "default": "Ref_audio/Qingyi.wav_0001504320_0001702080.wav",
     "description": "参考音频路径（本地路径）"
   },
   "prompt_text": {

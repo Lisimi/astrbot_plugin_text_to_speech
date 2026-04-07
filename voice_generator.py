@@ -159,7 +159,6 @@ class SoVITSClient:
                 logger.error(f"[SoVITSClient] TTS 请求失败，状态码: {resp.status_code}")
                 return False
                 
-            os.makedirs(os.path.dirname(output_file), exist_ok=True)
             with open(output_file, "wb") as f:
                 f.write(resp.content)
             logger.info(f"[SoVITSClient] 语音已保存到: {output_file}")
