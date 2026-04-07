@@ -46,6 +46,7 @@ class VoiceGeneratorStar(Star):
         ])
         
         self.client = SoVITSClient(base_url=self.base_url)
+        self._tts_lock = asyncio.Lock()
         
         if not self.client.available:
             logger.error("[VoiceGeneratorStar] 语音服务器不可用，插件将无法正常工作")
@@ -83,19 +84,24 @@ class VoiceGeneratorStar(Star):
             save_dir: 保存目录
             
         Returns:
-            str/bool: 成功返回文件路径，失败返回 False
+            str/bool: 成功返回文件路径，失败返回 False，请求被跳过返回 None
         """
-        os.makedirs(save_dir, exist_ok=True)
-        output_path = os.path.join(save_dir, "audio.wav")
-        
-        return self.client.tts(
-            text=text,
-            text_lang="zh",
-            ref_audio_path=self.ref_audio,
-            prompt_text=self.prompt_text,
-            prompt_lang="zh",
-            output_file=output_path
-        )
+        if self._tts_lock.locked():
+            logger.warning("[VoiceGeneratorStar] 语音服务正在处理其他请求，跳过本次生成")
+            return None
+            
+        async with self._tts_lock:
+            os.makedirs(save_dir, exist_ok=True)
+            output_path = os.path.join(save_dir, "audio.wav")
+            
+            return self.client.tts(
+                text=text,
+                text_lang="zh",
+                ref_audio_path=self.ref_audio,
+                prompt_text=self.prompt_text,
+                prompt_lang="zh",
+                output_file=output_path
+            )
 
     @on_decorating_result()
     async def on_decorating_result(self, event: AstrMessageEvent):
@@ -129,6 +135,9 @@ class VoiceGeneratorStar(Star):
             
         try:
             audio_path = await self._generate_audio(full_text, save_dir)
+            if audio_path is None:
+                logger.info("[VoiceGeneratorStar] 语音生成请求被跳过（服务繁忙）")
+                return
             if audio_path is False:
                 logger.error("[VoiceGeneratorStar] 语音生成失败，服务器不可用")
                 return
@@ -159,6 +168,9 @@ class VoiceGeneratorStar(Star):
             save_dir = str(Path(__file__).parent / "outputVideo" / event.session.platform_id / event.get_session_id())
             path = await self._generate_audio(text, save_dir)
 
+            if path is None:
+                yield event.plain_result("❌ 语音服务繁忙，请稍后重试")
+                return
             if path is False:
                 yield event.plain_result("❌ 语音生成失败")
                 return
