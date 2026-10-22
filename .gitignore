@@ -1,0 +1,42 @@
+# ========== Python 编译缓存 ==========
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# ========== 构建 / 打包产物 ==========
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ========== 虚拟环境 ==========
+venv/
+.venv/
+env/
+ENV/
+
+# ========== 运行时生成的语音产物 ==========
+outputVideo/
+*.wav.tmp
+
+# ========== 备份文件 ==========
+*.bak
+*.bak_*
+*.bak.*
+*.orig
+*.rej
+*~
+*.swp
+
+# ========== 编辑器 / 操作系统 ==========
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========== 日志 ==========
+*.log
+logs/
