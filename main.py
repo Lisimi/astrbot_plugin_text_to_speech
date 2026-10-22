@@ -35,7 +35,9 @@ class VoiceGeneratorStar(Star):
         self.min_text_length = config.get("min_text_length", 10)
         self.ref_audio = config.get("ref_audio", "Ref_audio/Qingyi.wav_0001504320_0001702080.wav")
         self.prompt_text = config.get("prompt_text", "嗯。如果不是因为店长深谙电影知识，我可能会错过这个细节也未可知。")
-        self.base_url = config.get("base_url", "http://192.168.0.105:9880")
+        self.base_url = config.get("base_url", "http://172.18.0.1:9880")
+        # 语音回复模式: voice_only(只发语音) / voice_and_text(语音+文字) / text_only(只发文字)
+        self.reply_mode = config.get("voice_reply_mode", "voice_only")
         
         self.clean_patterns = config.get(
             "clean_patterns", 
@@ -115,7 +117,11 @@ class VoiceGeneratorStar(Star):
         
         if not result or not result.chain:
             return
-            
+
+        # 配置开关：text_only 模式下完全不生成语音
+        if self.reply_mode == "text_only":
+            return
+
         platform_id = event.session.platform_id
         session_id = event.get_session_id()
         save_dir = str(Path(__file__).parent / "outputVideo" / platform_id / session_id)
@@ -141,9 +147,15 @@ class VoiceGeneratorStar(Star):
             if audio_path is False:
                 logger.error("[VoiceGeneratorStar] 语音生成失败，服务器不可用")
                 return
-            result.chain = [comp for comp in result.chain if not isinstance(comp, Comp.Plain)]
-            result.chain.insert(0, Comp.Record(file=save_dir + "/audio.wav", url=save_dir + "/audio.wav"))
-            logger.info(f"[VoiceGeneratorStar] 成功生成语音: {audio_path}")
+            record_comp = Comp.Record(file=save_dir + "/audio.wav", url=save_dir + "/audio.wav")
+            if self.reply_mode == "voice_and_text":
+                # 语音 + 文字：保留原有文字链，在开头插入语音
+                result.chain.insert(0, record_comp)
+            else:
+                # 只发语音：移除纯文字组件后插入语音
+                result.chain = [comp for comp in result.chain if not isinstance(comp, Comp.Plain)]
+                result.chain.insert(0, record_comp)
+            logger.info(f"[VoiceGeneratorStar] 成功生成语音: {audio_path} (mode={self.reply_mode})")
         except Exception as e:
             logger.error(f"[VoiceGeneratorStar] 插件处理失败: {e}")
 

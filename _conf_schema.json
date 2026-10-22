@@ -1,8 +1,23 @@
 {
   "base_url": {
     "type": "string",
-    "default": "http://192.168.0.105:9880",
+    "default": "http://172.18.0.1:9880",
     "description": "SoVITS API 服务地址"
+  },
+  "voice_reply_mode": {
+    "type": "string",
+    "default": "voice_only",
+    "options": [
+      "voice_only",
+      "voice_and_text",
+      "text_only"
+    ],
+    "labels": [
+      "🔊 只发语音（覆盖文字）",
+      "🔊📝 语音 + 文字",
+      "📝 只发文字（不生成语音）"
+    ],
+    "description": "语音回复模式：控制语音与文字的显示方式"
   },
   "max_text_length": {
     "type": "int",
